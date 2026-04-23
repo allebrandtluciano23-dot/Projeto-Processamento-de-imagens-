@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processamento de Imagens</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="leftSide">
+        <div>
+            <input type="file" id="fileInput1" accept="image/*" multiple>
+            <label for="fileInput1">Selecione a primeira imagem</label>
+        </div>
+
+        <div>
+            <input type="file" id="fileInput2" accept="image/*" multiple>
+            <label for="fileInput2">Selecione a segunda imagem</label>
+        </div>
+
+        <div class="control-row">
+            <button id="loadBtn">Carregar Imagens</button>
+            <button id="saveResultBtn">Salvar Resultado</button>
+        </div>
+        <div>
+            <button id="sumImagesBtn">Somar Imagens</button>
+            <button id="subtractImagesBtn">Subtrair Imagens</button>
+        </div>
+
+        <div class="control-row">
+            <div class="control-group">
+                <button id="brightenBtn">Aumentar Brilho</button>
+                <input type="number" id="brightnessValue" placeholder="Valor (0-255)" min="0" max="255" value="50">
+            </div>
+            <div class="control-group">
+                <button id="darkenBtn">Diminuir Brilho</button>
+                <input type="number" id="darknessValue" placeholder="Valor (0-255)" min="0" max="255" value="50">
+            </div>
+        </div>
+        <div class="control-row">
+            <div class="control-group">
+                <button id="contrastBtn">Multiplicar Contraste</button>
+                <input type="number" id="contrastValue" placeholder="Fator (0.1-5.0)" min="0.1" max="5.0" step="0.1" value="1.5">
+            </div>
+            <div class="control-group">
+                <button id="divideContrastBtn">Dividir Contraste</button>
+                <input type="number" id="divideContrastValue" placeholder="Divisor (0.1-5.0)" min="0.1" max="5.0" step="0.1" value="1.5">
+            </div>
+        </div>
+        <div>
+            <button id="grayBtn">Converter para Cinza</button>
+        </div>
+        <div>
+            <label for="thresholdValue">Limiar:</label>
+            <input type="number" id="thresholdValue" placeholder="0-255" min="0" max="255" value="128">
+            <button id="thresholdBtn">Limiarizar</button>
+        </div>
+        <div>
+            <button id="andBtn">AND Binário</button>
+            <button id="orBtn">OR Binário</button>
+            <button id="xorBtn">XOR Binário</button>
+            <button id="notBtn">NOT Binário</button>
+        </div>
+        <div>
+            <button id="differenceBtn">Diferença de Imagens</button>
+            <button id="blendBtn">Combinação Linear</button>
+            <input type="number" id="blendAlphaValue" placeholder="Alpha (0-1)" min="0" max="1" step="0.1" value="0.5">
+            <input type="number" id="blendBetaValue" placeholder="Beta (0-1)" min="0" max="1" step="0.1" value="0.5">
+        </div>
+        <div>
+            <button id="averageBtn">Média de Imagens</button>
+        </div>
+        <div>
+            <button id="flipHorizontalBtn">Inverter Horizontal</button>
+            <button id="flipVerticalBtn">Inverter Vertical</button>
+        </div>
+    </div>
+    <div id="rightSide">
+        <div id="imagesContainer">
+            <div id="image1Container">
+                <h3>Imagem 1</h3>
+                <img id="image1" alt="Imagem 1" style="max-width: 325px; max-height: 325px;">
+            </div>
+            <div id="image2Container">
+                <h3>Imagem 2</h3>
+                <img id="image2" alt="Imagem 2" style="max-width: 325px; max-height: 325px;">
+            </div>
+        </div>
+        <div id="resultContainer">
+            <h3>Imagem Resultante</h3>
+            <canvas id="resultCanvas" style="max-width: 325px; max-height: 325px; border: 1px solid #ccc;"></canvas>
+        </div>
+        <div id="output"></div>
+    </div>
+    <script src="carregarImg.js"></script>
+    <script src="funcoes.js"></script>
+</body>
+</html> 
