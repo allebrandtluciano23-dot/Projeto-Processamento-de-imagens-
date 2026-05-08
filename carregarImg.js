@@ -324,6 +324,25 @@ document.getElementById('flipVerticalBtn').addEventListener('click', function() 
     }
 });
 
+// Suavização Conservativa
+document.getElementById('smoothBtn').addEventListener('click', function () {
+
+    if (!matrizImagem1) {
+        alert('Carregue a imagem primeiro.');
+        return;
+    }
+
+    const resultado = suavizacaoConservativa(matrizImagem1);
+
+    if (resultado) {
+
+        desenharMatrizNoCanvas(resultado, 'resultCanvas');
+
+        document.getElementById('output').innerHTML =
+            'Operação: Suavização conservativa aplicada.';
+    }
+});
+
 document.getElementById('saveResultBtn').addEventListener('click', function() {
     const canvas = document.getElementById('resultCanvas');
     if (!canvas || canvas.width === 0 || canvas.height === 0) {

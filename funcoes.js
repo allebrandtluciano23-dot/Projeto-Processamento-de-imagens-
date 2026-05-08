@@ -380,6 +380,59 @@ function mediaImagens(matriz1, matriz2) {
     return combinacaoLinear(matriz1, matriz2, 0.5, 0.5);
 }
 
+
+// Função de suavização conservativa
+function suavizacaoConservativa(matriz) {
+    if (!matriz) return null;
+
+    const altura = matriz.length;
+    const largura = matriz[0].length;
+
+    const resultado = [];
+
+    for (let y = 0; y < altura; y++) {
+        resultado[y] = [];
+
+        for (let x = 0; x < largura; x++) {
+            resultado[y][x] = [...matriz[y][x]];
+        }
+    }
+
+    for (let y = 1; y < altura - 1; y++) {
+        for (let x = 1; x < largura - 1; x++) {
+            for (let canal = 0; canal < 3; canal++) {
+                let minimo = 255;
+                let maximo = 0;
+                for (let j = -1; j <= 1; j++) {
+                    for (let i = -1; i <= 1; i++) {
+                        if (i === 0 && j === 0)
+                            continue;
+                        const valor = matriz[y + j][x + i][canal];
+                        if (valor < minimo) minimo = valor;
+                        if (valor > maximo) maximo = valor;
+                    }
+                }
+                const pixel = matriz[y][x][canal];
+
+                if (pixel < minimo) {
+                    resultado[y][x][canal] = minimo;
+                }
+                else if (pixel > maximo) {
+                    resultado[y][x][canal] = maximo;
+                }
+                else {
+                    resultado[y][x][canal] = pixel;
+                }
+            }
+
+            resultado[y][x][3] = matriz[y][x][3];
+        }
+    }
+
+    return resultado;
+}
+
+
 // Função para salvar um canvas como arquivo PNG
 function salvarCanvasComoImagem(canvasId, fileName) {
     const canvas = document.getElementById(canvasId);
