@@ -289,6 +289,331 @@ function equalizacaoHistograma(matriz) {
     return resultado;
 }
 
+// ***********************
+// FILTROS ESPACIAIS - PASSA-BAIXA
+// ***********************
+
+function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+}
+
+function getNeighborhood(matriz, y, x, canal) {
+    const valores = [];
+    const altura = matriz.length;
+    const largura = matriz[0].length;
+    for (let j = -1; j <= 1; j++) {
+        for (let i = -1; i <= 1; i++) {
+            const yy = clamp(y + j, 0, altura - 1);
+            const xx = clamp(x + i, 0, largura - 1);
+            valores.push(matriz[yy][xx][canal]);
+        }
+    }
+    return valores;
+}
+
+function maxFilter(matriz) {
+    if (!matriz) return null;
+    const altura = matriz.length;
+    const largura = matriz[0].length;
+    const resultado = [];
+    for (let y = 0; y < altura; y++) {
+        resultado[y] = [];
+        for (let x = 0; x < largura; x++) {
+            const r = Math.max(...getNeighborhood(matriz, y, x, 0));
+            const g = Math.max(...getNeighborhood(matriz, y, x, 1));
+            const b = Math.max(...getNeighborhood(matriz, y, x, 2));
+            resultado[y][x] = [r, g, b, matriz[y][x][3]];
+        }
+    }
+    return resultado;
+}
+
+function minFilter(matriz) {
+    if (!matriz) return null;
+    const altura = matriz.length;
+    const largura = matriz[0].length;
+    const resultado = [];
+    for (let y = 0; y < altura; y++) {
+        resultado[y] = [];
+        for (let x = 0; x < largura; x++) {
+            const r = Math.min(...getNeighborhood(matriz, y, x, 0));
+            const g = Math.min(...getNeighborhood(matriz, y, x, 1));
+            const b = Math.min(...getNeighborhood(matriz, y, x, 2));
+            resultado[y][x] = [r, g, b, matriz[y][x][3]];
+        }
+    }
+    return resultado;
+}
+
+function meanFilter(matriz) {
+    if (!matriz) return null;
+    const altura = matriz.length;
+    const largura = matriz[0].length;
+    const resultado = [];
+    for (let y = 0; y < altura; y++) {
+        resultado[y] = [];
+        for (let x = 0; x < largura; x++) {
+            const r = getNeighborhood(matriz, y, x, 0).reduce((a, b) => a + b, 0) / 9;
+            const g = getNeighborhood(matriz, y, x, 1).reduce((a, b) => a + b, 0) / 9;
+            const b = getNeighborhood(matriz, y, x, 2).reduce((a, b) => a + b, 0) / 9;
+            resultado[y][x] = [Math.round(r), Math.round(g), Math.round(b), matriz[y][x][3]];
+        }
+    }
+    return resultado;
+}
+
+function medianFilter(matriz) {
+    if (!matriz) return null;
+    const altura = matriz.length;
+    const largura = matriz[0].length;
+    const resultado = [];
+    for (let y = 0; y < altura; y++) {
+        resultado[y] = [];
+        for (let x = 0; x < largura; x++) {
+            const r = getNeighborhood(matriz, y, x, 0).sort((a, b) => a - b)[4];
+            const g = getNeighborhood(matriz, y, x, 1).sort((a, b) => a - b)[4];
+            const b = getNeighborhood(matriz, y, x, 2).sort((a, b) => a - b)[4];
+            resultado[y][x] = [r, g, b, matriz[y][x][3]];
+        }
+    }
+    return resultado;
+}
+
+function orderFilter(matriz, position) {
+    if (!matriz) return null;
+    const index = clamp(position - 1, 0, 8);
+    const altura = matriz.length;
+    const largura = matriz[0].length;
+    const resultado = [];
+    for (let y = 0; y < altura; y++) {
+        resultado[y] = [];
+        for (let x = 0; x < largura; x++) {
+            const r = getNeighborhood(matriz, y, x, 0).sort((a, b) => a - b)[index];
+            const g = getNeighborhood(matriz, y, x, 1).sort((a, b) => a - b)[index];
+            const b = getNeighborhood(matriz, y, x, 2).sort((a, b) => a - b)[index];
+            resultado[y][x] = [r, g, b, matriz[y][x][3]];
+        }
+    }
+    return resultado;
+}
+
+function gaussianFilter(matriz) {
+    if (!matriz) return null;
+    const altura = matriz.length;
+    const largura = matriz[0].length;
+    const kernel = [
+        [1, 2, 1],
+        [2, 4, 2],
+        [1, 2, 1]
+    ];
+    const resultado = [];
+    for (let y = 0; y < altura; y++) {
+        resultado[y] = [];
+        for (let x = 0; x < largura; x++) {
+            let sumR = 0;
+            let sumG = 0;
+            let sumB = 0;
+            let weight = 0;
+            for (let j = -1; j <= 1; j++) {
+                for (let i = -1; i <= 1; i++) {
+                    const yy = clamp(y + j, 0, altura - 1);
+                    const xx = clamp(x + i, 0, largura - 1);
+                    const k = kernel[j + 1][i + 1];
+                    const pixel = matriz[yy][xx];
+                    sumR += pixel[0] * k;
+                    sumG += pixel[1] * k;
+                    sumB += pixel[2] * k;
+                    weight += k;
+                }
+            }
+            resultado[y][x] = [
+                Math.round(sumR / weight),
+                Math.round(sumG / weight),
+                Math.round(sumB / weight),
+                matriz[y][x][3]
+            ];
+        }
+    }
+    return resultado;
+}
+
+function grayValue(pixel) {
+    return Math.round(0.299 * pixel[0] + 0.587 * pixel[1] + 0.114 * pixel[2]);
+}
+
+function convolveGray(matriz, kernel) {
+    const altura = matriz.length;
+    const largura = matriz[0].length;
+    const resultado = [];
+    for (let y = 0; y < altura; y++) {
+        resultado[y] = [];
+        for (let x = 0; x < largura; x++) {
+            let soma = 0;
+            for (let j = -1; j <= 1; j++) {
+                for (let i = -1; i <= 1; i++) {
+                    const yy = clamp(y + j, 0, altura - 1);
+                    const xx = clamp(x + i, 0, largura - 1);
+                    const peso = kernel[j + 1][i + 1];
+                    soma += grayValue(matriz[yy][xx]) * peso;
+                }
+            }
+            soma = clamp(Math.abs(soma), 0, 255);
+            resultado[y][x] = [soma, soma, soma, matriz[y][x][3]];
+        }
+    }
+    return resultado;
+}
+
+function prewittFilter(matriz) {
+    const kernelX = [
+        [-1, 0, 1],
+        [-1, 0, 1],
+        [-1, 0, 1]
+    ];
+    const kernelY = [
+        [1, 1, 1],
+        [0, 0, 0],
+        [-1, -1, -1]
+    ];
+    return gradientFilter(matriz, kernelX, kernelY);
+}
+
+function sobelFilter(matriz) {
+    const kernelX = [
+        [-1, 0, 1],
+        [-2, 0, 2],
+        [-1, 0, 1]
+    ];
+    const kernelY = [
+        [1, 2, 1],
+        [0, 0, 0],
+        [-1, -2, -1]
+    ];
+    return gradientFilter(matriz, kernelX, kernelY);
+}
+
+function laplacianFilter(matriz) {
+    const kernel = [
+        [0, 1, 0],
+        [1, -4, 1],
+        [0, 1, 0]
+    ];
+    return convolveGray(matriz, kernel);
+}
+
+function gradientFilter(matriz, kernelX, kernelY) {
+    const altura = matriz.length;
+    const largura = matriz[0].length;
+    const resultado = [];
+    for (let y = 0; y < altura; y++) {
+        resultado[y] = [];
+        for (let x = 0; x < largura; x++) {
+            let gx = 0;
+            let gy = 0;
+            for (let j = -1; j <= 1; j++) {
+                for (let i = -1; i <= 1; i++) {
+                    const yy = clamp(y + j, 0, altura - 1);
+                    const xx = clamp(x + i, 0, largura - 1);
+                    const valor = grayValue(matriz[yy][xx]);
+                    gx += valor * kernelX[j + 1][i + 1];
+                    gy += valor * kernelY[j + 1][i + 1];
+                }
+            }
+            const magnitude = clamp(Math.round(Math.sqrt(gx * gx + gy * gy)), 0, 255);
+            resultado[y][x] = [magnitude, magnitude, magnitude, matriz[y][x][3]];
+        }
+    }
+    return resultado;
+}
+
+// ***********************
+// OPERAÇÕES MORFOLÓGICAS BINÁRIAS
+// ***********************
+
+function binarizar(matriz, limiar) {
+    const altura = matriz.length;
+    const largura = matriz[0].length;
+    const resultado = [];
+    for (let y = 0; y < altura; y++) {
+        resultado[y] = [];
+        for (let x = 0; x < largura; x++) {
+            const valor = grayValue(matriz[y][x]) >= limiar ? 255 : 0;
+            resultado[y][x] = [valor, valor, valor, 255];
+        }
+    }
+    return resultado;
+}
+
+function binaryNeighborhood(matriz, y, x) {
+    const altura = matriz.length;
+    const largura = matriz[0].length;
+    const valores = [];
+    for (let j = -1; j <= 1; j++) {
+        for (let i = -1; i <= 1; i++) {
+            const yy = clamp(y + j, 0, altura - 1);
+            const xx = clamp(x + i, 0, largura - 1);
+            valores.push(matriz[yy][xx][0]);
+        }
+    }
+    return valores;
+}
+
+function dilatacao(matriz, limiar) {
+    const binario = binarizar(matriz, limiar);
+    const altura = binario.length;
+    const largura = binario[0].length;
+    const resultado = [];
+    for (let y = 0; y < altura; y++) {
+        resultado[y] = [];
+        for (let x = 0; x < largura; x++) {
+            resultado[y][x] = [binaryNeighborhood(binario, y, x).some(v => v === 255) ? 255 : 0, 0, 0, 255];
+            resultado[y][x][1] = resultado[y][x][0];
+            resultado[y][x][2] = resultado[y][x][0];
+        }
+    }
+    return resultado;
+}
+
+function erosao(matriz, limiar) {
+    const binario = binarizar(matriz, limiar);
+    const altura = binario.length;
+    const largura = binario[0].length;
+    const resultado = [];
+    for (let y = 0; y < altura; y++) {
+        resultado[y] = [];
+        for (let x = 0; x < largura; x++) {
+            resultado[y][x] = [binaryNeighborhood(binario, y, x).every(v => v === 255) ? 255 : 0, 0, 0, 255];
+            resultado[y][x][1] = resultado[y][x][0];
+            resultado[y][x][2] = resultado[y][x][0];
+        }
+    }
+    return resultado;
+}
+
+function abertura(matriz, limiar) {
+    return dilatacao(erosao(matriz, limiar), limiar);
+}
+
+function fechamento(matriz, limiar) {
+    return erosao(dilatacao(matriz, limiar), limiar);
+}
+
+function contorno(matriz, limiar) {
+    const binario = binarizar(matriz, limiar);
+    const erodido = erosao(matriz, limiar);
+    const altura = binario.length;
+    const largura = binario[0].length;
+    const resultado = [];
+    for (let y = 0; y < altura; y++) {
+        resultado[y] = [];
+        for (let x = 0; x < largura; x++) {
+            const valor = binario[y][x][0] === 255 && erodido[y][x][0] === 0 ? 255 : 0;
+            resultado[y][x] = [valor, valor, valor, 255];
+        }
+    }
+    return resultado;
+}
+
 // Função para inverter a imagem da esquerda para a direita
 function inverterHorizontal(matriz) {
     if (!matriz) return null;

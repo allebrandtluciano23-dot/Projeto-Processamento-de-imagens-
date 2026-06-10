@@ -22,11 +22,12 @@
             <button id="loadBtn">Carregar Imagens</button>
             <button id="saveResultBtn">Salvar Resultado</button>
         </div>
+
+        <h3>Operações Aritméticas</h3>
         <div>
             <button id="sumImagesBtn">Somar Imagens</button>
             <button id="subtractImagesBtn">Subtrair Imagens</button>
         </div>
-
         <div class="control-row">
             <div class="control-group">
                 <button id="brightenBtn">Aumentar Brilho</button>
@@ -47,14 +48,32 @@
                 <input type="number" id="divideContrastValue" placeholder="Divisor (0.1-5.0)" min="0.1" max="5.0" step="0.1" value="1.5">
             </div>
         </div>
+
+        <h3>Combinações e Diferenças</h3>
+        <div>
+            <button id="differenceBtn">Diferença de Imagens</button>
+            <button id="blendBtn">Combinação Linear</button>
+        </div>
+        <div class="control-row">
+            <input type="number" id="blendAlphaValue" placeholder="Alpha (0-1)" min="0" max="1" step="0.1" value="0.5">
+            <input type="number" id="blendBetaValue" placeholder="Beta (0-1)" min="0" max="1" step="0.1" value="0.5">
+        </div>
+        <div>
+            <button id="averageBtn">Média de Imagens</button>
+        </div>
+
+        <h3>Transformações Básicas</h3>
         <div>
             <button id="grayBtn">Converter para Cinza</button>
+            <button id="negativeBtn">Negativo</button>
+            <button id="equalizeBtn">Equalizar Histograma</button>
         </div>
-
         <div>
-            <button id="smoothBtn">Suavização Conservativa</button>
+            <button id="flipHorizontalBtn">Inverter Horizontal</button>
+            <button id="flipVerticalBtn">Inverter Vertical</button>
         </div>
 
+        <h3>Operações Binárias</h3>
         <div>
             <label for="thresholdValue">Limiar:</label>
             <input type="number" id="thresholdValue" placeholder="0-255" min="0" max="255" value="128">
@@ -66,18 +85,43 @@
             <button id="xorBtn">XOR Binário</button>
             <button id="notBtn">NOT Binário</button>
         </div>
+
+        <h3>Filtros Passa-Baixa</h3>
         <div>
-            <button id="differenceBtn">Diferença de Imagens</button>
-            <button id="blendBtn">Combinação Linear</button>
-            <input type="number" id="blendAlphaValue" placeholder="Alpha (0-1)" min="0" max="1" step="0.1" value="0.5">
-            <input type="number" id="blendBetaValue" placeholder="Beta (0-1)" min="0" max="1" step="0.1" value="0.5">
+            <button id="maxFilterBtn">Filtro MAX</button>
+            <button id="minFilterBtn">Filtro MIN</button>
         </div>
         <div>
-            <button id="averageBtn">Média de Imagens</button>
+            <button id="meanFilterBtn">Filtro MEAN</button>
+            <button id="medianFilterBtn">Filtro MEDIANA</button>
         </div>
         <div>
-            <button id="flipHorizontalBtn">Inverter Horizontal</button>
-            <button id="flipVerticalBtn">Inverter Vertical</button>
+            <button id="orderFilterBtn">Filtro ORDEM</button>
+            <input type="number" id="orderPositionValue" placeholder="Posição (1-9)" min="1" max="9" value="5">
+        </div>
+        <div>
+            <button id="gaussianFilterBtn">Filtro GAUSSIANO</button>
+        </div>
+        <div>
+            <button id="smoothBtn">Suavização Conservativa</button>
+        </div>
+
+        <h3>Filtros Passa-Alta</h3>
+        <div>
+            <button id="prewittBtn">Borda Prewitt</button>
+            <button id="sobelBtn">Borda Sobel</button>
+            <button id="laplacianBtn">Borda Laplaciano</button>
+        </div>
+
+        <h3>Operações Morfológicas</h3>
+        <div>
+            <button id="dilateBtn">Dilatação</button>
+            <button id="erodeBtn">Erosão</button>
+        </div>
+        <div>
+            <button id="openBtn">Abertura</button>
+            <button id="closeBtn">Fechamento</button>
+            <button id="contourBtn">Contorno</button>
         </div>
     </div>
     <div id="rightSide">
