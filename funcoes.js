@@ -1,3 +1,26 @@
+/*
+    funcoes.js
+    Projeto-Processamento-de-imagens
+
+    Este arquivo contém implementações de operações de processamento de
+    imagens organizadas por seções:
+
+    1) Operações Aritméticas (soma, subtração, brilho, contraste)
+    2) Transformações (cinza, negativo, flip, diferença, blending)
+    3) Equalização de histograma
+    4) Filtros espaciais - Passa-baixa (max, min, mean, median, gaussian, order)
+    5) Filtros passa-alta (Prewitt, Sobel, Laplaciano)
+    6) Operações morfológicas (dilatação, erosão, abertura, fechamento, contorno)
+    7) Utilitários (clamp, grayValue, neighborhood helpers)
+
+    Cada seção está claramente marcada no arquivo. As funções recebem e
+    retornam matrizes no formato [altura][largura][4] (R,G,B,A).
+*/
+
+// -----------------------
+// Seção: Operações Aritméticas
+// -----------------------
+
 // Função para somar duas imagens pixel a pixel
 function somarImagens(matriz1, matriz2) {
     if (!matriz1 || !matriz2 || matriz1.length !== matriz2.length || matriz1[0].length !== matriz2[0].length) {

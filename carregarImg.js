@@ -1,3 +1,14 @@
+/*
+    carregarImg.js
+    Gerencia carregamento de imagens, eventos de UI e desenho no canvas.
+
+    Organização do arquivo:
+    - Variáveis globais (matrizes de pixels)
+    - Função loadImage (leitura via FileReader para matriz de pixels)
+    - Event listeners (botões e operações da interface)
+    - Funções utilitárias de desenho/salvamento (link para funcoes.js)
+*/
+
 // Variáveis globais para armazenar as matrizes de pixels
 let matrizImagem1 = null;
 let matrizImagem2 = null;
