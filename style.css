@@ -18,17 +18,17 @@ body {
 ========================= */
 
 #leftSide {
-    flex: 0 0 360px;
+    flex: 0 0 340px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 16px;
+    gap: 8px;
+    padding: 10px;
     border: 1px solid #dde1e7;
-    border-radius: 12px;
+    border-radius: 8px;
     background-color: #ffffff;
     max-height: calc(100vh - 40px);
     overflow-y: auto;
-    box-shadow: 0 12px 24px rgba(63, 77, 86, 0.08);
+    box-shadow: 0 10px 18px rgba(63, 77, 86, 0.06);
 }
 
 #leftSide > div {
@@ -80,16 +80,18 @@ input[type="number"]:focus {
    BOTÕES
 ========================= */
 
+
 button {
-    padding: 10px 14px;
+    padding: 8px 10px;
     background: linear-gradient(135deg, #4caf50, #43a047);
     color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: 6px;
     cursor: pointer;
-    min-width: 120px;
-    font-weight: bold;
-    transition: all 0.2s ease;
+    min-width: 90px;
+    font-weight: 700;
+    font-size: 13px;
+    transition: all 0.15s ease;
     white-space: nowrap;
 }
 
@@ -166,13 +168,13 @@ button:active {
 #image1,
 #image2,
 #resultCanvas {
-    max-width: 220px;
-    max-height: 220px;
+    max-width: 200px;
+    max-height: 200px;
     border: 1px solid #ccc;
-    border-radius: 10px;
+    border-radius: 6px;
     background-color: white;
-    padding: 5px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    padding: 4px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.06);
 }
 
 /* =========================
@@ -227,4 +229,37 @@ button:active {
         flex-direction: column;
         align-items: stretch;
     }
+}
+
+/* =========================
+   SIDEBAR PANELS (ACCORDION)
+   ========================= */
+
+.panel {
+    border-bottom: 1px solid #eef1f5;
+}
+
+.panel-header {
+    font-weight: 700;
+    padding: 8px 4px;
+    cursor: pointer;
+    color: #2f4f4f;
+    background: transparent;
+}
+
+.panel-header:hover {
+    color: #1b5e20;
+}
+
+.panel-content {
+    display: none;
+    padding: 8px 4px 16px 4px;
+}
+
+.panel-content.open {
+    display: block;
+}
+
+.panel .control-row, .panel .control-group {
+    margin-top: 6px;
 }

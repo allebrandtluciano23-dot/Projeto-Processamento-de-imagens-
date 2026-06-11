@@ -79,6 +79,27 @@ function loadImage(file, callback) {
     reader.readAsDataURL(file);
 }
 
+    // -----------------------
+    // Accordion (sidebar) - abre apenas a seção selecionada
+    // -----------------------
+    document.addEventListener('DOMContentLoaded', function () {
+        const headers = document.querySelectorAll('#leftSide .panel-header');
+        headers.forEach(h => {
+            h.addEventListener('click', function () {
+                const contents = document.querySelectorAll('#leftSide .panel-content');
+                contents.forEach(c => c.classList.remove('open'));
+                const next = h.nextElementSibling;
+                if (next && next.classList.contains('panel-content')) {
+                    next.classList.add('open');
+                }
+            });
+        });
+
+        // abrir o primeiro painel por padrão
+        const first = document.querySelector('#leftSide .panel-content');
+        if (first) first.classList.add('open');
+    });
+
 // Event listeners para operações
 document.getElementById('sumImagesBtn').addEventListener('click', function() {
     if (!matrizImagem1 || !matrizImagem2) {
