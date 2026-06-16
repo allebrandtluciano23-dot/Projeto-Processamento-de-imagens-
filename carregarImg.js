@@ -6,46 +6,12 @@
     - Variáveis globais (matrizes de pixels)
     - Função loadImage (leitura via FileReader para matriz de pixels)
     - Event listeners (botões e operações da interface)
-    - Funções utilitárias de desenho/salvamento (link para funcoes.js)
+    - Inicialização do accordion (ao final, sem DOMContentLoaded necessário
+      pois o script é carregado no final do <body>)
 */
 
-// Variáveis globais para armazenar as matrizes de pixels
 let matrizImagem1 = null;
 let matrizImagem2 = null;
-
-document.getElementById('loadBtn').addEventListener('click', function() {
-    const fileInput1 = document.getElementById('fileInput1');
-    const fileInput2 = document.getElementById('fileInput2');
-    const output = document.getElementById('output');
-
-    if (fileInput1.files.length === 0 || fileInput2.files.length === 0) {
-        output.innerHTML = 'Por favor, selecione duas imagens.';
-        return;
-    }
-
-    const file1 = fileInput1.files[0];
-    const file2 = fileInput2.files[0];
-
-    // Carregar primeira imagem
-    loadImage(file1, function(img1, width1, height1, pixels1, dataURL1) {
-        matrizImagem1 = pixels1;
-        document.getElementById('image1').src = dataURL1;
-        console.log('Imagem 1 carregada:', width1, 'x', height1);
-
-        // Carregar segunda imagem
-        loadImage(file2, function(img2, width2, height2, pixels2, dataURL2) {
-            matrizImagem2 = pixels2;
-            document.getElementById('image2').src = dataURL2;
-            console.log('Imagem 2 carregada:', width2, 'x', height2);
-
-            output.innerHTML = `
-                <p>Imagem 1: ${width1}x${height1} pixels</p>
-                <p>Imagem 2: ${width2}x${height2} pixels</p>
-                <p>Matrizes de pixels armazenadas em matrizImagem1 e matrizImagem2.</p>
-            `;
-        });
-    });
-});
 
 function loadImage(file, callback) {
     const reader = new FileReader();
@@ -64,12 +30,12 @@ function loadImage(file, callback) {
                 pixels[y] = [];
                 for (let x = 0; x < img.width; x++) {
                     const index = (y * img.width + x) * 4;
-                    pixels[y][x] = [
-                        imageData.data[index],     // R
-                        imageData.data[index + 1], // G
-                        imageData.data[index + 2], // B
-                        imageData.data[index + 3]  // A
-                    ];
+                    pixels[y][x] = new Uint8ClampedArray([
+                        imageData.data[index],
+                        imageData.data[index + 1],
+                        imageData.data[index + 2],
+                        imageData.data[index + 3]
+                    ]);
                 }
             }
             callback(img, img.width, img.height, pixels, dataURL);
@@ -79,529 +45,470 @@ function loadImage(file, callback) {
     reader.readAsDataURL(file);
 }
 
-    // -----------------------
-    // Accordion (sidebar) - abre apenas a seção selecionada
-    // -----------------------
-    document.addEventListener('DOMContentLoaded', function () {
-        const headers = document.querySelectorAll('#leftSide .panel-header');
-        headers.forEach(h => {
-            h.addEventListener('click', function () {
-                const contents = document.querySelectorAll('#leftSide .panel-content');
-                contents.forEach(c => c.classList.remove('open'));
-                const next = h.nextElementSibling;
-                if (next && next.classList.contains('panel-content')) {
-                    next.classList.add('open');
-                }
-            });
+document.getElementById('loadBtn').addEventListener('click', function() {
+    const fileInput1 = document.getElementById('fileInput1');
+    const fileInput2 = document.getElementById('fileInput2');
+    const output = document.getElementById('output');
+
+    if (fileInput1.files.length === 0 || fileInput2.files.length === 0) {
+        output.innerHTML = 'Por favor, selecione duas imagens.';
+        return;
+    }
+
+    const file1 = fileInput1.files[0];
+    const file2 = fileInput2.files[0];
+
+    loadImage(file1, function(img1, width1, height1, pixels1, dataURL1) {
+        matrizImagem1 = pixels1;
+        document.getElementById('image1').src = dataURL1;
+
+        loadImage(file2, function(img2, width2, height2, pixels2, dataURL2) {
+            matrizImagem2 = pixels2;
+            document.getElementById('image2').src = dataURL2;
+
+            output.innerHTML = `
+                <p>Imagem 1: ${width1}x${height1} pixels</p>
+                <p>Imagem 2: ${width2}x${height2} pixels</p>
+                <p>Matrizes de pixels armazenadas em matrizImagem1 e matrizImagem2.</p>
+            `;
         });
-
-        // abrir o primeiro painel por padrão
-        const first = document.querySelector('#leftSide .panel-content');
-        if (first) first.classList.add('open');
     });
+});
 
-// Event listeners para operações
 document.getElementById('sumImagesBtn').addEventListener('click', function() {
-    if (!matrizImagem1 || !matrizImagem2) {
-        alert('Carregue as imagens primeiro.');
+    const output = document.getElementById('output');
+    if (!matrizImagem1 || !matrizImagem2) { output.innerHTML = 'Carregue as imagens primeiro.'; return; }
+    if (matrizImagem1.length !== matrizImagem2.length || matrizImagem1[0].length !== matrizImagem2[0].length) {
+        output.innerHTML = 'As imagens devem ter o mesmo tamanho para somar.';
         return;
     }
     const resultado = somarImagens(matrizImagem1, matrizImagem2);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: Soma das imagens aplicada.';
+        output.innerHTML = 'Operação: Soma das imagens aplicada.';
     }
 });
 
 document.getElementById('subtractImagesBtn').addEventListener('click', function() {
-    if (!matrizImagem1 || !matrizImagem2) {
-        alert('Carregue as imagens primeiro.');
+    const output = document.getElementById('output');
+    if (!matrizImagem1 || !matrizImagem2) { output.innerHTML = 'Carregue as imagens primeiro.'; return; }
+    if (matrizImagem1.length !== matrizImagem2.length || matrizImagem1[0].length !== matrizImagem2[0].length) {
+        output.innerHTML = 'As imagens devem ter o mesmo tamanho para subtrair.';
         return;
     }
     const resultado = subtrairImagens(matrizImagem1, matrizImagem2);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: Subtração das imagens aplicada (Imagem1 - Imagem2).';
+        output.innerHTML = 'Operação: Subtração das imagens aplicada (Imagem1 - Imagem2).';
     }
 });
 
 document.getElementById('brightenBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue as imagens primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue as imagens primeiro.'; return; }
     const valor = parseInt(document.getElementById('brightnessValue').value);
-    if (isNaN(valor) || valor < 0 || valor > 255) {
-        alert('Digite um valor entre 0 e 255.');
-        return;
-    }
+    if (isNaN(valor) || valor < 0 || valor > 255) { output.innerHTML = 'Digite um valor entre 0 e 255.'; return; }
     const resultado = aumentarBrilho(matrizImagem1, valor);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = `Operação: Brilho aumentado em ${valor}.`;
+        output.innerHTML = `Operação: Brilho aumentado em ${valor}.`;
     }
 });
 
 document.getElementById('darkenBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue as imagens primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue as imagens primeiro.'; return; }
     const valor = parseInt(document.getElementById('darknessValue').value);
-    if (isNaN(valor) || valor < 0 || valor > 255) {
-        alert('Digite um valor entre 0 e 255.');
-        return;
-    }
+    if (isNaN(valor) || valor < 0 || valor > 255) { output.innerHTML = 'Digite um valor entre 0 e 255.'; return; }
     const resultado = diminuirBrilho(matrizImagem1, valor);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = `Operação: Brilho diminuído em ${valor}.`;
+        output.innerHTML = `Operação: Brilho diminuído em ${valor}.`;
     }
 });
 
 document.getElementById('contrastBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue as imagens primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue as imagens primeiro.'; return; }
     const fator = parseFloat(document.getElementById('contrastValue').value);
-    if (isNaN(fator) || fator < 0.1 || fator > 5.0) {
-        alert('Digite um fator entre 0.1 e 5.0.');
-        return;
-    }
+    if (isNaN(fator) || fator < 0.1 || fator > 5.0) { output.innerHTML = 'Digite um fator entre 0.1 e 5.0.'; return; }
     const resultado = ajustarContraste(matrizImagem1, fator);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = `Operação: Contraste multiplicado por ${fator}.`;
+        output.innerHTML = `Operação: Contraste multiplicado por ${fator}.`;
     }
 });
 
 document.getElementById('divideContrastBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue as imagens primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue as imagens primeiro.'; return; }
     const divisor = parseFloat(document.getElementById('divideContrastValue').value);
-    if (isNaN(divisor) || divisor < 0.1 || divisor > 5.0) {
-        alert('Digite um divisor entre 0.1 e 5.0.');
-        return;
-    }
+    if (isNaN(divisor) || divisor < 0.1 || divisor > 5.0) { output.innerHTML = 'Digite um divisor entre 0.1 e 5.0.'; return; }
     const resultado = dividirContraste(matrizImagem1, divisor);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = `Operação: Contraste dividido por ${divisor}.`;
+        output.innerHTML = `Operação: Contraste dividido por ${divisor}.`;
     }
 });
 
 document.getElementById('grayBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue a imagem primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue a imagem primeiro.'; return; }
     const resultado = converterParaCinza(matrizImagem1);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: Conversão para escala de cinza aplicada.';
+        output.innerHTML = 'Operação: Conversão para escala de cinza aplicada.';
     }
 });
 
 document.getElementById('thresholdBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue a imagem primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue a imagem primeiro.'; return; }
     const limiar = parseInt(document.getElementById('thresholdValue').value);
-    if (isNaN(limiar) || limiar < 0 || limiar > 255) {
-        alert('Digite um limiar entre 0 e 255.');
-        return;
-    }
+    if (isNaN(limiar) || limiar < 0 || limiar > 255) { output.innerHTML = 'Digite um limiar entre 0 e 255.'; return; }
     const resultado = limiarizar(matrizImagem1, limiar);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = `Operação: Limiarização aplicada com limiar ${limiar}.`;
+        output.innerHTML = `Operação: Limiarização aplicada com limiar ${limiar}.`;
     }
 });
 
 document.getElementById('andBtn').addEventListener('click', function() {
-    if (!matrizImagem1 || !matrizImagem2) {
-        alert('Carregue as duas imagens primeiro.');
+    const output = document.getElementById('output');
+    if (!matrizImagem1 || !matrizImagem2) { output.innerHTML = 'Carregue as duas imagens primeiro.'; return; }
+    if (matrizImagem1.length !== matrizImagem2.length || matrizImagem1[0].length !== matrizImagem2[0].length) {
+        output.innerHTML = 'As imagens devem ter o mesmo tamanho para operações lógicas.';
         return;
     }
     const limiar = parseInt(document.getElementById('thresholdValue').value);
-    if (isNaN(limiar) || limiar < 0 || limiar > 255) {
-        alert('Digite um limiar entre 0 e 255.');
-        return;
-    }
+    if (isNaN(limiar) || limiar < 0 || limiar > 255) { output.innerHTML = 'Digite um limiar entre 0 e 255.'; return; }
     const resultado = logicaBinaria(matrizImagem1, matrizImagem2, limiar, 'AND');
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: AND binário aplicada.';
+        output.innerHTML = 'Operação: AND binário aplicada.';
     }
 });
 
 document.getElementById('orBtn').addEventListener('click', function() {
-    if (!matrizImagem1 || !matrizImagem2) {
-        alert('Carregue as duas imagens primeiro.');
+    const output = document.getElementById('output');
+    if (!matrizImagem1 || !matrizImagem2) { output.innerHTML = 'Carregue as duas imagens primeiro.'; return; }
+    if (matrizImagem1.length !== matrizImagem2.length || matrizImagem1[0].length !== matrizImagem2[0].length) {
+        output.innerHTML = 'As imagens devem ter o mesmo tamanho para operações lógicas.';
         return;
     }
     const limiar = parseInt(document.getElementById('thresholdValue').value);
-    if (isNaN(limiar) || limiar < 0 || limiar > 255) {
-        alert('Digite um limiar entre 0 e 255.');
-        return;
-    }
+    if (isNaN(limiar) || limiar < 0 || limiar > 255) { output.innerHTML = 'Digite um limiar entre 0 e 255.'; return; }
     const resultado = logicaBinaria(matrizImagem1, matrizImagem2, limiar, 'OR');
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: OR binário aplicada.';
+        output.innerHTML = 'Operação: OR binário aplicada.';
     }
 });
 
 document.getElementById('xorBtn').addEventListener('click', function() {
-    if (!matrizImagem1 || !matrizImagem2) {
-        alert('Carregue as duas imagens primeiro.');
+    const output = document.getElementById('output');
+    if (!matrizImagem1 || !matrizImagem2) { output.innerHTML = 'Carregue as duas imagens primeiro.'; return; }
+    if (matrizImagem1.length !== matrizImagem2.length || matrizImagem1[0].length !== matrizImagem2[0].length) {
+        output.innerHTML = 'As imagens devem ter o mesmo tamanho para operações lógicas.';
         return;
     }
     const limiar = parseInt(document.getElementById('thresholdValue').value);
-    if (isNaN(limiar) || limiar < 0 || limiar > 255) {
-        alert('Digite um limiar entre 0 e 255.');
-        return;
-    }
+    if (isNaN(limiar) || limiar < 0 || limiar > 255) { output.innerHTML = 'Digite um limiar entre 0 e 255.'; return; }
     const resultado = logicaBinaria(matrizImagem1, matrizImagem2, limiar, 'XOR');
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: XOR binário aplicada.';
+        output.innerHTML = 'Operação: XOR binário aplicada.';
     }
 });
 
 document.getElementById('notBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue a imagem primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue a imagem primeiro.'; return; }
     const limiar = parseInt(document.getElementById('thresholdValue').value);
-    if (isNaN(limiar) || limiar < 0 || limiar > 255) {
-        alert('Digite um limiar entre 0 e 255.');
-        return;
-    }
+    if (isNaN(limiar) || limiar < 0 || limiar > 255) { output.innerHTML = 'Digite um limiar entre 0 e 255.'; return; }
     const resultado = logicaBinaria(matrizImagem1, null, limiar, 'NOT');
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: NOT binário aplicada.';
+        output.innerHTML = 'Operação: NOT binário aplicada.';
     }
 });
 
 document.getElementById('negativeBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue a imagem primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue a imagem primeiro.'; return; }
     const resultado = negativo(matrizImagem1);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: Negativo aplicada.';
+        output.innerHTML = 'Operação: Negativo aplicada.';
     }
 });
 
 document.getElementById('equalizeBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue a imagem primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue a imagem primeiro.'; return; }
     const resultado = equalizacaoHistograma(matrizImagem1);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: Equalização de histograma aplicada.';
+        output.innerHTML = 'Operação: Equalização de histograma aplicada.';
     }
 });
 
 document.getElementById('maxFilterBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue a imagem primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue a imagem primeiro.'; return; }
     const resultado = maxFilter(matrizImagem1);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: Filtro MAX aplicada.';
+        output.innerHTML = 'Operação: Filtro MAX aplicada.';
     }
 });
 
 document.getElementById('minFilterBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue a imagem primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue a imagem primeiro.'; return; }
     const resultado = minFilter(matrizImagem1);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: Filtro MIN aplicada.';
+        output.innerHTML = 'Operação: Filtro MIN aplicada.';
     }
 });
 
 document.getElementById('meanFilterBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue a imagem primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue a imagem primeiro.'; return; }
     const resultado = meanFilter(matrizImagem1);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: Filtro MEAN aplicada.';
+        output.innerHTML = 'Operação: Filtro MEAN aplicada.';
     }
 });
 
 document.getElementById('medianFilterBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue a imagem primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue a imagem primeiro.'; return; }
     const resultado = medianFilter(matrizImagem1);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: Filtro MEDIANA aplicada.';
+        output.innerHTML = 'Operação: Filtro MEDIANA aplicada.';
     }
 });
 
 document.getElementById('orderFilterBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue a imagem primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue a imagem primeiro.'; return; }
     const posicao = parseInt(document.getElementById('orderPositionValue').value);
-    if (isNaN(posicao) || posicao < 1 || posicao > 9) {
-        alert('Digite uma posição de 1 a 9.');
-        return;
-    }
+    if (isNaN(posicao) || posicao < 1 || posicao > 9) { output.innerHTML = 'Digite uma posição de 1 a 9.'; return; }
     const resultado = orderFilter(matrizImagem1, posicao);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = `Operação: Filtro ORDEM aplicada (posição ${posicao}).`;
+        output.innerHTML = `Operação: Filtro ORDEM aplicada (posição ${posicao}).`;
     }
 });
 
 document.getElementById('gaussianFilterBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue a imagem primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue a imagem primeiro.'; return; }
     const resultado = gaussianFilter(matrizImagem1);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: Filtro GAUSSIANO aplicada.';
+        output.innerHTML = 'Operação: Filtro GAUSSIANO aplicada.';
     }
 });
 
 document.getElementById('prewittBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue a imagem primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue a imagem primeiro.'; return; }
     const resultado = prewittFilter(matrizImagem1);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: Detecção de borda Prewitt aplicada.';
+        output.innerHTML = 'Operação: Detecção de borda Prewitt aplicada.';
     }
 });
 
 document.getElementById('sobelBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue a imagem primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue a imagem primeiro.'; return; }
     const resultado = sobelFilter(matrizImagem1);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: Detecção de borda Sobel aplicada.';
+        output.innerHTML = 'Operação: Detecção de borda Sobel aplicada.';
     }
 });
 
 document.getElementById('laplacianBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue a imagem primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue a imagem primeiro.'; return; }
     const resultado = laplacianFilter(matrizImagem1);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: Detecção de borda Laplaciano aplicada.';
+        output.innerHTML = 'Operação: Detecção de borda Laplaciano aplicada.';
     }
 });
 
 document.getElementById('dilateBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue a imagem primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue a imagem primeiro.'; return; }
     const limiar = parseInt(document.getElementById('thresholdValue').value);
-    if (isNaN(limiar) || limiar < 0 || limiar > 255) {
-        alert('Digite um limiar entre 0 e 255.');
-        return;
-    }
+    if (isNaN(limiar) || limiar < 0 || limiar > 255) { output.innerHTML = 'Digite um limiar entre 0 e 255.'; return; }
     const resultado = dilatacao(matrizImagem1, limiar);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: Dilatação aplicada.';
+        output.innerHTML = 'Operação: Dilatação aplicada.';
     }
 });
 
 document.getElementById('erodeBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue a imagem primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue a imagem primeiro.'; return; }
     const limiar = parseInt(document.getElementById('thresholdValue').value);
-    if (isNaN(limiar) || limiar < 0 || limiar > 255) {
-        alert('Digite um limiar entre 0 e 255.');
-        return;
-    }
+    if (isNaN(limiar) || limiar < 0 || limiar > 255) { output.innerHTML = 'Digite um limiar entre 0 e 255.'; return; }
     const resultado = erosao(matrizImagem1, limiar);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: Erosão aplicada.';
+        output.innerHTML = 'Operação: Erosão aplicada.';
     }
 });
 
 document.getElementById('openBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue a imagem primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue a imagem primeiro.'; return; }
     const limiar = parseInt(document.getElementById('thresholdValue').value);
-    if (isNaN(limiar) || limiar < 0 || limiar > 255) {
-        alert('Digite um limiar entre 0 e 255.');
-        return;
-    }
+    if (isNaN(limiar) || limiar < 0 || limiar > 255) { output.innerHTML = 'Digite um limiar entre 0 e 255.'; return; }
     const resultado = abertura(matrizImagem1, limiar);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: Abertura aplicada.';
+        output.innerHTML = 'Operação: Abertura aplicada.';
     }
 });
 
 document.getElementById('closeBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue a imagem primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue a imagem primeiro.'; return; }
     const limiar = parseInt(document.getElementById('thresholdValue').value);
-    if (isNaN(limiar) || limiar < 0 || limiar > 255) {
-        alert('Digite um limiar entre 0 e 255.');
-        return;
-    }
+    if (isNaN(limiar) || limiar < 0 || limiar > 255) { output.innerHTML = 'Digite um limiar entre 0 e 255.'; return; }
     const resultado = fechamento(matrizImagem1, limiar);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: Fechamento aplicada.';
+        output.innerHTML = 'Operação: Fechamento aplicada.';
     }
 });
 
 document.getElementById('contourBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue a imagem primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue a imagem primeiro.'; return; }
     const limiar = parseInt(document.getElementById('thresholdValue').value);
-    if (isNaN(limiar) || limiar < 0 || limiar > 255) {
-        alert('Digite um limiar entre 0 e 255.');
-        return;
-    }
+    if (isNaN(limiar) || limiar < 0 || limiar > 255) { output.innerHTML = 'Digite um limiar entre 0 e 255.'; return; }
     const resultado = contorno(matrizImagem1, limiar);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: Contorno aplicada.';
+        output.innerHTML = 'Operação: Contorno aplicada.';
     }
 });
 
 document.getElementById('differenceBtn').addEventListener('click', function() {
-    if (!matrizImagem1 || !matrizImagem2) {
-        alert('Carregue as duas imagens primeiro.');
+    const output = document.getElementById('output');
+    if (!matrizImagem1 || !matrizImagem2) { output.innerHTML = 'Carregue as duas imagens primeiro.'; return; }
+    if (matrizImagem1.length !== matrizImagem2.length || matrizImagem1[0].length !== matrizImagem2[0].length) {
+        output.innerHTML = 'As imagens devem ter o mesmo tamanho para calcular a diferença.';
         return;
     }
     const resultado = diferencaImagens(matrizImagem1, matrizImagem2);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: Diferença de imagens aplicada.';
+        output.innerHTML = 'Operação: Diferença de imagens aplicada.';
     }
 });
 
 document.getElementById('blendBtn').addEventListener('click', function() {
-    if (!matrizImagem1 || !matrizImagem2) {
-        alert('Carregue as duas imagens primeiro.');
+    const output = document.getElementById('output');
+    if (!matrizImagem1 || !matrizImagem2) { output.innerHTML = 'Carregue as duas imagens primeiro.'; return; }
+    if (matrizImagem1.length !== matrizImagem2.length || matrizImagem1[0].length !== matrizImagem2[0].length) {
+        output.innerHTML = 'As imagens devem ter o mesmo tamanho para combinação linear.';
         return;
     }
     const alpha = parseFloat(document.getElementById('blendAlphaValue').value);
     const beta = parseFloat(document.getElementById('blendBetaValue').value);
     if (isNaN(alpha) || alpha < 0 || alpha > 1 || isNaN(beta) || beta < 0 || beta > 1) {
-        alert('Digite valores de alpha e beta entre 0 e 1.');
+        output.innerHTML = 'Digite valores de alpha e beta entre 0 e 1.';
         return;
     }
     const resultado = combinacaoLinear(matrizImagem1, matrizImagem2, alpha, beta);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = `Operação: Combinação linear aplicada (alpha=${alpha}, beta=${beta}).`;
+        output.innerHTML = `Operação: Combinação linear aplicada (alpha=${alpha}, beta=${beta}).`;
     }
 });
 
 document.getElementById('averageBtn').addEventListener('click', function() {
-    if (!matrizImagem1 || !matrizImagem2) {
-        alert('Carregue as duas imagens primeiro.');
+    const output = document.getElementById('output');
+    if (!matrizImagem1 || !matrizImagem2) { output.innerHTML = 'Carregue as duas imagens primeiro.'; return; }
+    if (matrizImagem1.length !== matrizImagem2.length || matrizImagem1[0].length !== matrizImagem2[0].length) {
+        output.innerHTML = 'As imagens devem ter o mesmo tamanho para calcular a média.';
         return;
     }
     const resultado = mediaImagens(matrizImagem1, matrizImagem2);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: Média de imagens aplicada.';
+        output.innerHTML = 'Operação: Média de imagens aplicada.';
     }
 });
 
 document.getElementById('flipHorizontalBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue a imagem primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue a imagem primeiro.'; return; }
     const resultado = inverterHorizontal(matrizImagem1);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: Inversão horizontal aplicada.';
+        output.innerHTML = 'Operação: Inversão horizontal aplicada.';
     }
 });
 
 document.getElementById('flipVerticalBtn').addEventListener('click', function() {
-    if (!matrizImagem1) {
-        alert('Carregue a imagem primeiro.');
-        return;
-    }
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue a imagem primeiro.'; return; }
     const resultado = inverterVertical(matrizImagem1);
     if (resultado) {
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-        document.getElementById('output').innerHTML = 'Operação: Inversão vertical aplicada.';
+        output.innerHTML = 'Operação: Inversão vertical aplicada.';
     }
 });
 
-// Suavização Conservativa
-document.getElementById('smoothBtn').addEventListener('click', function () {
-
-    if (!matrizImagem1) {
-        alert('Carregue a imagem primeiro.');
-        return;
-    }
-
+document.getElementById('smoothBtn').addEventListener('click', function() {
+    const output = document.getElementById('output');
+    if (!matrizImagem1) { output.innerHTML = 'Carregue a imagem primeiro.'; return; }
     const resultado = suavizacaoConservativa(matrizImagem1);
-
     if (resultado) {
-
         desenharMatrizNoCanvas(resultado, 'resultCanvas');
-
-        document.getElementById('output').innerHTML =
-            'Operação: Suavização conservativa aplicada.';
+        output.innerHTML = 'Operação: Suavização conservativa aplicada.';
     }
 });
 
 document.getElementById('saveResultBtn').addEventListener('click', function() {
     const canvas = document.getElementById('resultCanvas');
     if (!canvas || canvas.width === 0 || canvas.height === 0) {
-        alert('Nada para salvar. Faça uma operação primeiro.');
+        document.getElementById('output').innerHTML = 'Nada para salvar. Faça uma operação primeiro.';
         return;
     }
     salvarCanvasComoImagem('resultCanvas', 'resultado.png');
 });
+
+// -----------------------
+// Accordion (sidebar) - abre apenas a seção selecionada
+// -----------------------
+const headers = document.querySelectorAll('#leftSide .panel-header');
+headers.forEach(h => {
+    h.addEventListener('click', function() {
+        document.querySelectorAll('#leftSide .panel-header').forEach(hh => hh.classList.remove('open'));
+        document.querySelectorAll('#leftSide .panel-content').forEach(c => c.classList.remove('open'));
+        const next = h.nextElementSibling;
+        if (next && next.classList.contains('panel-content')) {
+            h.classList.add('open');
+            next.classList.add('open');
+        }
+    });
+});
+
+const firstHeader = document.querySelector('#leftSide .panel-header');
+const firstPanel  = document.querySelector('#leftSide .panel-content');
+if (firstHeader) firstHeader.classList.add('open');
+if (firstPanel)  firstPanel.classList.add('open');

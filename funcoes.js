@@ -14,19 +14,17 @@
     7) Utilitários (clamp, grayValue, neighborhood helpers)
 
     Cada seção está claramente marcada no arquivo. As funções recebem e
-    retornam matrizes no formato [altura][largura][4] (R,G,B,A).
+    retornam matrizes no formato [altura][largura][4] (R,G,B,A) onde cada
+    pixel é um Uint8ClampedArray(4).
 */
 
 // -----------------------
 // Seção: Operações Aritméticas
 // -----------------------
 
-// Função para somar duas imagens pixel a pixel
 function somarImagens(matriz1, matriz2) {
-    if (!matriz1 || !matriz2 || matriz1.length !== matriz2.length || matriz1[0].length !== matriz2[0].length) {
-        alert('As imagens devem ter o mesmo tamanho para somar.');
+    if (!matriz1 || !matriz2 || matriz1.length !== matriz2.length || matriz1[0].length !== matriz2[0].length)
         return null;
-    }
 
     const altura = matriz1.length;
     const largura = matriz1[0].length;
@@ -35,18 +33,18 @@ function somarImagens(matriz1, matriz2) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            const r = Math.min(255, matriz1[y][x][0] + matriz2[y][x][0]);
-            const g = Math.min(255, matriz1[y][x][1] + matriz2[y][x][1]);
-            const b = Math.min(255, matriz1[y][x][2] + matriz2[y][x][2]);
-            const a = Math.max(matriz1[y][x][3], matriz2[y][x][3]); // Mantém o alpha maior
-            resultado[y][x] = [r, g, b, a];
+            resultado[y][x] = new Uint8ClampedArray([
+                matriz1[y][x][0] + matriz2[y][x][0],
+                matriz1[y][x][1] + matriz2[y][x][1],
+                matriz1[y][x][2] + matriz2[y][x][2],
+                Math.max(matriz1[y][x][3], matriz2[y][x][3])
+            ]);
         }
     }
 
     return resultado;
 }
 
-// Função para aumentar o brilho somando um valor constante a cada pixel
 function aumentarBrilho(matriz, valor) {
     if (!matriz) return null;
 
@@ -57,23 +55,21 @@ function aumentarBrilho(matriz, valor) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            const r = Math.min(255, matriz[y][x][0] + valor);
-            const g = Math.min(255, matriz[y][x][1] + valor);
-            const b = Math.min(255, matriz[y][x][2] + valor);
-            const a = matriz[y][x][3]; // Mantém alpha inalterado
-            resultado[y][x] = [r, g, b, a];
+            resultado[y][x] = new Uint8ClampedArray([
+                matriz[y][x][0] + valor,
+                matriz[y][x][1] + valor,
+                matriz[y][x][2] + valor,
+                matriz[y][x][3]
+            ]);
         }
     }
 
     return resultado;
 }
 
-// Função para subtrair duas imagens pixel a pixel (matriz1 - matriz2)
 function subtrairImagens(matriz1, matriz2) {
-    if (!matriz1 || !matriz2 || matriz1.length !== matriz2.length || matriz1[0].length !== matriz2[0].length) {
-        alert('As imagens devem ter o mesmo tamanho para subtrair.');
+    if (!matriz1 || !matriz2 || matriz1.length !== matriz2.length || matriz1[0].length !== matriz2[0].length)
         return null;
-    }
 
     const altura = matriz1.length;
     const largura = matriz1[0].length;
@@ -82,18 +78,18 @@ function subtrairImagens(matriz1, matriz2) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            const r = Math.max(0, matriz1[y][x][0] - matriz2[y][x][0]);
-            const g = Math.max(0, matriz1[y][x][1] - matriz2[y][x][1]);
-            const b = Math.max(0, matriz1[y][x][2] - matriz2[y][x][2]);
-            const a = Math.max(matriz1[y][x][3], matriz2[y][x][3]); // Mantém o alpha maior
-            resultado[y][x] = [r, g, b, a];
+            resultado[y][x] = new Uint8ClampedArray([
+                matriz1[y][x][0] - matriz2[y][x][0],
+                matriz1[y][x][1] - matriz2[y][x][1],
+                matriz1[y][x][2] - matriz2[y][x][2],
+                Math.max(matriz1[y][x][3], matriz2[y][x][3])
+            ]);
         }
     }
 
     return resultado;
 }
 
-// Função para diminuir o brilho subtraindo um valor constante de cada pixel
 function diminuirBrilho(matriz, valor) {
     if (!matriz) return null;
 
@@ -104,18 +100,18 @@ function diminuirBrilho(matriz, valor) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            const r = Math.max(0, matriz[y][x][0] - valor);
-            const g = Math.max(0, matriz[y][x][1] - valor);
-            const b = Math.max(0, matriz[y][x][2] - valor);
-            const a = matriz[y][x][3]; // Mantém alpha inalterado
-            resultado[y][x] = [r, g, b, a];
+            resultado[y][x] = new Uint8ClampedArray([
+                matriz[y][x][0] - valor,
+                matriz[y][x][1] - valor,
+                matriz[y][x][2] - valor,
+                matriz[y][x][3]
+            ]);
         }
     }
 
     return resultado;
 }
 
-// Função para ajustar o contraste multiplicando um valor constante a cada pixel
 function ajustarContraste(matriz, fator) {
     if (!matriz) return null;
 
@@ -126,18 +122,18 @@ function ajustarContraste(matriz, fator) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            const r = Math.max(0, Math.min(255, Math.round(matriz[y][x][0] * fator)));
-            const g = Math.max(0, Math.min(255, Math.round(matriz[y][x][1] * fator)));
-            const b = Math.max(0, Math.min(255, Math.round(matriz[y][x][2] * fator)));
-            const a = matriz[y][x][3]; // Mantém alpha inalterado
-            resultado[y][x] = [r, g, b, a];
+            resultado[y][x] = new Uint8ClampedArray([
+                Math.round(matriz[y][x][0] * fator),
+                Math.round(matriz[y][x][1] * fator),
+                Math.round(matriz[y][x][2] * fator),
+                matriz[y][x][3]
+            ]);
         }
     }
 
     return resultado;
 }
 
-// Função para dividir um valor constante em cada pixel (ajustar contraste)
 function dividirContraste(matriz, divisor) {
     if (!matriz || divisor === 0) return null;
 
@@ -148,18 +144,18 @@ function dividirContraste(matriz, divisor) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            const r = Math.max(0, Math.min(255, Math.round(matriz[y][x][0] / divisor)));
-            const g = Math.max(0, Math.min(255, Math.round(matriz[y][x][1] / divisor)));
-            const b = Math.max(0, Math.min(255, Math.round(matriz[y][x][2] / divisor)));
-            const a = matriz[y][x][3]; // Mantém alpha inalterado
-            resultado[y][x] = [r, g, b, a];
+            resultado[y][x] = new Uint8ClampedArray([
+                Math.round(matriz[y][x][0] / divisor),
+                Math.round(matriz[y][x][1] / divisor),
+                Math.round(matriz[y][x][2] / divisor),
+                matriz[y][x][3]
+            ]);
         }
     }
 
     return resultado;
 }
 
-// Função para converter uma imagem RGB em escala de cinza
 function converterParaCinza(matriz) {
     if (!matriz) return null;
 
@@ -170,19 +166,14 @@ function converterParaCinza(matriz) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            const r = matriz[y][x][0];
-            const g = matriz[y][x][1];
-            const b = matriz[y][x][2];
-            const gray = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
-            const a = matriz[y][x][3];
-            resultado[y][x] = [gray, gray, gray, a];
+            const gray = Math.round(0.299 * matriz[y][x][0] + 0.587 * matriz[y][x][1] + 0.114 * matriz[y][x][2]);
+            resultado[y][x] = new Uint8ClampedArray([gray, gray, gray, matriz[y][x][3]]);
         }
     }
 
     return resultado;
 }
 
-// Função para limiarizar uma imagem em binária
 function limiarizar(matriz, limiar) {
     if (!matriz) return null;
 
@@ -193,12 +184,9 @@ function limiarizar(matriz, limiar) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            const r = matriz[y][x][0];
-            const g = matriz[y][x][1];
-            const b = matriz[y][x][2];
-            const gray = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+            const gray = Math.round(0.299 * matriz[y][x][0] + 0.587 * matriz[y][x][1] + 0.114 * matriz[y][x][2]);
             const binary = gray >= limiar ? 255 : 0;
-            resultado[y][x] = [binary, binary, binary, matriz[y][x][3]];
+            resultado[y][x] = new Uint8ClampedArray([binary, binary, binary, matriz[y][x][3]]);
         }
     }
 
@@ -208,10 +196,8 @@ function limiarizar(matriz, limiar) {
 function logicaBinaria(matriz1, matriz2, limiar, operacao) {
     if (!matriz1) return null;
     if (operacao !== 'NOT' && !matriz2) return null;
-    if (operacao !== 'NOT' && (matriz1.length !== matriz2.length || matriz1[0].length !== matriz2[0].length)) {
-        alert('As imagens devem ter o mesmo tamanho para operações lógicas.');
+    if (operacao !== 'NOT' && (matriz1.length !== matriz2.length || matriz1[0].length !== matriz2[0].length))
         return null;
-    }
 
     const altura = matriz1.length;
     const largura = matriz1[0].length;
@@ -227,28 +213,19 @@ function logicaBinaria(matriz1, matriz2, limiar, operacao) {
             let value = 0;
 
             switch (operacao) {
-                case 'AND':
-                    value = v1 && v2 ? 255 : 0;
-                    break;
-                case 'OR':
-                    value = v1 || v2 ? 255 : 0;
-                    break;
-                case 'XOR':
-                    value = (v1 ^ v2) ? 255 : 0;
-                    break;
-                case 'NOT':
-                    value = v1 ? 0 : 255;
-                    break;
+                case 'AND': value = v1 && v2 ? 255 : 0; break;
+                case 'OR':  value = v1 || v2 ? 255 : 0; break;
+                case 'XOR': value = (v1 ^ v2) ? 255 : 0; break;
+                case 'NOT': value = v1 ? 0 : 255; break;
             }
 
-            resultado[y][x] = [value, value, value, matriz1[y][x][3]];
+            resultado[y][x] = new Uint8ClampedArray([value, value, value, matriz1[y][x][3]]);
         }
     }
 
     return resultado;
 }
 
-// Função para aplicar negativo a uma imagem
 function negativo(matriz) {
     if (!matriz) return null;
 
@@ -259,18 +236,18 @@ function negativo(matriz) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            const r = 255 - matriz[y][x][0];
-            const g = 255 - matriz[y][x][1];
-            const b = 255 - matriz[y][x][2];
-            const a = matriz[y][x][3];
-            resultado[y][x] = [r, g, b, a];
+            resultado[y][x] = new Uint8ClampedArray([
+                255 - matriz[y][x][0],
+                255 - matriz[y][x][1],
+                255 - matriz[y][x][2],
+                matriz[y][x][3]
+            ]);
         }
     }
 
     return resultado;
 }
 
-// Função para equalizar o histograma de uma imagem em escala de cinza
 function equalizacaoHistograma(matriz) {
     if (!matriz) return null;
 
@@ -282,10 +259,7 @@ function equalizacaoHistograma(matriz) {
 
     for (let y = 0; y < altura; y++) {
         for (let x = 0; x < largura; x++) {
-            const r = matriz[y][x][0];
-            const g = matriz[y][x][1];
-            const b = matriz[y][x][2];
-            const gray = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+            const gray = Math.round(0.299 * matriz[y][x][0] + 0.587 * matriz[y][x][1] + 0.114 * matriz[y][x][2]);
             hist[gray]++;
         }
     }
@@ -300,12 +274,9 @@ function equalizacaoHistograma(matriz) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            const r = matriz[y][x][0];
-            const g = matriz[y][x][1];
-            const b = matriz[y][x][2];
-            const gray = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+            const gray = Math.round(0.299 * matriz[y][x][0] + 0.587 * matriz[y][x][1] + 0.114 * matriz[y][x][2]);
             const equalizado = cdf[gray];
-            resultado[y][x] = [equalizado, equalizado, equalizado, matriz[y][x][3]];
+            resultado[y][x] = new Uint8ClampedArray([equalizado, equalizado, equalizado, matriz[y][x][3]]);
         }
     }
 
@@ -320,18 +291,22 @@ function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
 }
 
-function getNeighborhood(matriz, y, x, canal) {
-    const valores = [];
+// Retorna [rArr, gArr, bArr] dos 9 vizinhos em uma única passagem
+function getNeighborhoodChannels(matriz, y, x) {
+    const r = [], g = [], b = [];
     const altura = matriz.length;
     const largura = matriz[0].length;
     for (let j = -1; j <= 1; j++) {
         for (let i = -1; i <= 1; i++) {
             const yy = clamp(y + j, 0, altura - 1);
             const xx = clamp(x + i, 0, largura - 1);
-            valores.push(matriz[yy][xx][canal]);
+            const p = matriz[yy][xx];
+            r.push(p[0]);
+            g.push(p[1]);
+            b.push(p[2]);
         }
     }
-    return valores;
+    return [r, g, b];
 }
 
 function maxFilter(matriz) {
@@ -342,10 +317,8 @@ function maxFilter(matriz) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            const r = Math.max(...getNeighborhood(matriz, y, x, 0));
-            const g = Math.max(...getNeighborhood(matriz, y, x, 1));
-            const b = Math.max(...getNeighborhood(matriz, y, x, 2));
-            resultado[y][x] = [r, g, b, matriz[y][x][3]];
+            const [r, g, b] = getNeighborhoodChannels(matriz, y, x);
+            resultado[y][x] = new Uint8ClampedArray([Math.max(...r), Math.max(...g), Math.max(...b), matriz[y][x][3]]);
         }
     }
     return resultado;
@@ -359,10 +332,8 @@ function minFilter(matriz) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            const r = Math.min(...getNeighborhood(matriz, y, x, 0));
-            const g = Math.min(...getNeighborhood(matriz, y, x, 1));
-            const b = Math.min(...getNeighborhood(matriz, y, x, 2));
-            resultado[y][x] = [r, g, b, matriz[y][x][3]];
+            const [r, g, b] = getNeighborhoodChannels(matriz, y, x);
+            resultado[y][x] = new Uint8ClampedArray([Math.min(...r), Math.min(...g), Math.min(...b), matriz[y][x][3]]);
         }
     }
     return resultado;
@@ -376,10 +347,13 @@ function meanFilter(matriz) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            const r = getNeighborhood(matriz, y, x, 0).reduce((a, b) => a + b, 0) / 9;
-            const g = getNeighborhood(matriz, y, x, 1).reduce((a, b) => a + b, 0) / 9;
-            const b = getNeighborhood(matriz, y, x, 2).reduce((a, b) => a + b, 0) / 9;
-            resultado[y][x] = [Math.round(r), Math.round(g), Math.round(b), matriz[y][x][3]];
+            const [r, g, b] = getNeighborhoodChannels(matriz, y, x);
+            resultado[y][x] = new Uint8ClampedArray([
+                Math.round(r.reduce((a, v) => a + v, 0) / 9),
+                Math.round(g.reduce((a, v) => a + v, 0) / 9),
+                Math.round(b.reduce((a, v) => a + v, 0) / 9),
+                matriz[y][x][3]
+            ]);
         }
     }
     return resultado;
@@ -393,10 +367,13 @@ function medianFilter(matriz) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            const r = getNeighborhood(matriz, y, x, 0).sort((a, b) => a - b)[4];
-            const g = getNeighborhood(matriz, y, x, 1).sort((a, b) => a - b)[4];
-            const b = getNeighborhood(matriz, y, x, 2).sort((a, b) => a - b)[4];
-            resultado[y][x] = [r, g, b, matriz[y][x][3]];
+            const [r, g, b] = getNeighborhoodChannels(matriz, y, x);
+            resultado[y][x] = new Uint8ClampedArray([
+                r.sort((a, b) => a - b)[4],
+                g.sort((a, b) => a - b)[4],
+                b.sort((a, b) => a - b)[4],
+                matriz[y][x][3]
+            ]);
         }
     }
     return resultado;
@@ -411,10 +388,13 @@ function orderFilter(matriz, position) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            const r = getNeighborhood(matriz, y, x, 0).sort((a, b) => a - b)[index];
-            const g = getNeighborhood(matriz, y, x, 1).sort((a, b) => a - b)[index];
-            const b = getNeighborhood(matriz, y, x, 2).sort((a, b) => a - b)[index];
-            resultado[y][x] = [r, g, b, matriz[y][x][3]];
+            const [r, g, b] = getNeighborhoodChannels(matriz, y, x);
+            resultado[y][x] = new Uint8ClampedArray([
+                r.sort((a, b) => a - b)[index],
+                g.sort((a, b) => a - b)[index],
+                b.sort((a, b) => a - b)[index],
+                matriz[y][x][3]
+            ]);
         }
     }
     return resultado;
@@ -433,10 +413,7 @@ function gaussianFilter(matriz) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            let sumR = 0;
-            let sumG = 0;
-            let sumB = 0;
-            let weight = 0;
+            let sumR = 0, sumG = 0, sumB = 0, weight = 0;
             for (let j = -1; j <= 1; j++) {
                 for (let i = -1; i <= 1; i++) {
                     const yy = clamp(y + j, 0, altura - 1);
@@ -449,12 +426,12 @@ function gaussianFilter(matriz) {
                     weight += k;
                 }
             }
-            resultado[y][x] = [
+            resultado[y][x] = new Uint8ClampedArray([
                 Math.round(sumR / weight),
                 Math.round(sumG / weight),
                 Math.round(sumB / weight),
                 matriz[y][x][3]
-            ];
+            ]);
         }
     }
     return resultado;
@@ -476,51 +453,30 @@ function convolveGray(matriz, kernel) {
                 for (let i = -1; i <= 1; i++) {
                     const yy = clamp(y + j, 0, altura - 1);
                     const xx = clamp(x + i, 0, largura - 1);
-                    const peso = kernel[j + 1][i + 1];
-                    soma += grayValue(matriz[yy][xx]) * peso;
+                    soma += grayValue(matriz[yy][xx]) * kernel[j + 1][i + 1];
                 }
             }
-            soma = clamp(Math.abs(soma), 0, 255);
-            resultado[y][x] = [soma, soma, soma, matriz[y][x][3]];
+            const v = clamp(Math.abs(soma), 0, 255);
+            resultado[y][x] = new Uint8ClampedArray([v, v, v, matriz[y][x][3]]);
         }
     }
     return resultado;
 }
 
 function prewittFilter(matriz) {
-    const kernelX = [
-        [-1, 0, 1],
-        [-1, 0, 1],
-        [-1, 0, 1]
-    ];
-    const kernelY = [
-        [1, 1, 1],
-        [0, 0, 0],
-        [-1, -1, -1]
-    ];
+    const kernelX = [[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]];
+    const kernelY = [[1, 1, 1], [0, 0, 0], [-1, -1, -1]];
     return gradientFilter(matriz, kernelX, kernelY);
 }
 
 function sobelFilter(matriz) {
-    const kernelX = [
-        [-1, 0, 1],
-        [-2, 0, 2],
-        [-1, 0, 1]
-    ];
-    const kernelY = [
-        [1, 2, 1],
-        [0, 0, 0],
-        [-1, -2, -1]
-    ];
+    const kernelX = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]];
+    const kernelY = [[1, 2, 1], [0, 0, 0], [-1, -2, -1]];
     return gradientFilter(matriz, kernelX, kernelY);
 }
 
 function laplacianFilter(matriz) {
-    const kernel = [
-        [0, 1, 0],
-        [1, -4, 1],
-        [0, 1, 0]
-    ];
+    const kernel = [[0, 1, 0], [1, -4, 1], [0, 1, 0]];
     return convolveGray(matriz, kernel);
 }
 
@@ -531,8 +487,7 @@ function gradientFilter(matriz, kernelX, kernelY) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            let gx = 0;
-            let gy = 0;
+            let gx = 0, gy = 0;
             for (let j = -1; j <= 1; j++) {
                 for (let i = -1; i <= 1; i++) {
                     const yy = clamp(y + j, 0, altura - 1);
@@ -543,7 +498,7 @@ function gradientFilter(matriz, kernelX, kernelY) {
                 }
             }
             const magnitude = clamp(Math.round(Math.sqrt(gx * gx + gy * gy)), 0, 255);
-            resultado[y][x] = [magnitude, magnitude, magnitude, matriz[y][x][3]];
+            resultado[y][x] = new Uint8ClampedArray([magnitude, magnitude, magnitude, matriz[y][x][3]]);
         }
     }
     return resultado;
@@ -560,8 +515,8 @@ function binarizar(matriz, limiar) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            const valor = grayValue(matriz[y][x]) >= limiar ? 255 : 0;
-            resultado[y][x] = [valor, valor, valor, 255];
+            const v = grayValue(matriz[y][x]) >= limiar ? 255 : 0;
+            resultado[y][x] = new Uint8ClampedArray([v, v, v, 255]);
         }
     }
     return resultado;
@@ -589,9 +544,8 @@ function dilatacao(matriz, limiar) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            resultado[y][x] = [binaryNeighborhood(binario, y, x).some(v => v === 255) ? 255 : 0, 0, 0, 255];
-            resultado[y][x][1] = resultado[y][x][0];
-            resultado[y][x][2] = resultado[y][x][0];
+            const v = binaryNeighborhood(binario, y, x).some(v => v === 255) ? 255 : 0;
+            resultado[y][x] = new Uint8ClampedArray([v, v, v, 255]);
         }
     }
     return resultado;
@@ -605,9 +559,8 @@ function erosao(matriz, limiar) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            resultado[y][x] = [binaryNeighborhood(binario, y, x).every(v => v === 255) ? 255 : 0, 0, 0, 255];
-            resultado[y][x][1] = resultado[y][x][0];
-            resultado[y][x][2] = resultado[y][x][0];
+            const v = binaryNeighborhood(binario, y, x).every(v => v === 255) ? 255 : 0;
+            resultado[y][x] = new Uint8ClampedArray([v, v, v, 255]);
         }
     }
     return resultado;
@@ -630,14 +583,13 @@ function contorno(matriz, limiar) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            const valor = binario[y][x][0] === 255 && erodido[y][x][0] === 0 ? 255 : 0;
-            resultado[y][x] = [valor, valor, valor, 255];
+            const v = binario[y][x][0] === 255 && erodido[y][x][0] === 0 ? 255 : 0;
+            resultado[y][x] = new Uint8ClampedArray([v, v, v, 255]);
         }
     }
     return resultado;
 }
 
-// Função para inverter a imagem da esquerda para a direita
 function inverterHorizontal(matriz) {
     if (!matriz) return null;
 
@@ -655,7 +607,6 @@ function inverterHorizontal(matriz) {
     return resultado;
 }
 
-// Função para inverter a imagem de cima para baixo
 function inverterVertical(matriz) {
     if (!matriz) return null;
 
@@ -673,12 +624,9 @@ function inverterVertical(matriz) {
     return resultado;
 }
 
-// Função para calcular a diferença absoluta entre duas imagens
 function diferencaImagens(matriz1, matriz2) {
-    if (!matriz1 || !matriz2 || matriz1.length !== matriz2.length || matriz1[0].length !== matriz2[0].length) {
-        alert('As imagens devem ter o mesmo tamanho para calcular a diferença.');
+    if (!matriz1 || !matriz2 || matriz1.length !== matriz2.length || matriz1[0].length !== matriz2[0].length)
         return null;
-    }
 
     const altura = matriz1.length;
     const largura = matriz1[0].length;
@@ -687,23 +635,21 @@ function diferencaImagens(matriz1, matriz2) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            const r = Math.abs(matriz1[y][x][0] - matriz2[y][x][0]);
-            const g = Math.abs(matriz1[y][x][1] - matriz2[y][x][1]);
-            const b = Math.abs(matriz1[y][x][2] - matriz2[y][x][2]);
-            const a = Math.max(matriz1[y][x][3], matriz2[y][x][3]);
-            resultado[y][x] = [r, g, b, a];
+            resultado[y][x] = new Uint8ClampedArray([
+                Math.abs(matriz1[y][x][0] - matriz2[y][x][0]),
+                Math.abs(matriz1[y][x][1] - matriz2[y][x][1]),
+                Math.abs(matriz1[y][x][2] - matriz2[y][x][2]),
+                Math.max(matriz1[y][x][3], matriz2[y][x][3])
+            ]);
         }
     }
 
     return resultado;
 }
 
-// Função para combinar linearmente duas imagens com pesos alpha e beta
 function combinacaoLinear(matriz1, matriz2, alpha, beta) {
-    if (!matriz1 || !matriz2 || matriz1.length !== matriz2.length || matriz1[0].length !== matriz2[0].length) {
-        alert('As imagens devem ter o mesmo tamanho para combinação linear.');
+    if (!matriz1 || !matriz2 || matriz1.length !== matriz2.length || matriz1[0].length !== matriz2[0].length)
         return null;
-    }
 
     const altura = matriz1.length;
     const largura = matriz1[0].length;
@@ -712,67 +658,52 @@ function combinacaoLinear(matriz1, matriz2, alpha, beta) {
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
         for (let x = 0; x < largura; x++) {
-            const r = Math.max(0, Math.min(255, Math.round(alpha * matriz1[y][x][0] + beta * matriz2[y][x][0])));
-            const g = Math.max(0, Math.min(255, Math.round(alpha * matriz1[y][x][1] + beta * matriz2[y][x][1])));
-            const b = Math.max(0, Math.min(255, Math.round(alpha * matriz1[y][x][2] + beta * matriz2[y][x][2])));
-            const a = Math.max(matriz1[y][x][3], matriz2[y][x][3]);
-            resultado[y][x] = [r, g, b, a];
+            resultado[y][x] = new Uint8ClampedArray([
+                Math.round(alpha * matriz1[y][x][0] + beta * matriz2[y][x][0]),
+                Math.round(alpha * matriz1[y][x][1] + beta * matriz2[y][x][1]),
+                Math.round(alpha * matriz1[y][x][2] + beta * matriz2[y][x][2]),
+                Math.max(matriz1[y][x][3], matriz2[y][x][3])
+            ]);
         }
     }
 
     return resultado;
 }
 
-// Função para calcular a média de duas imagens
 function mediaImagens(matriz1, matriz2) {
     return combinacaoLinear(matriz1, matriz2, 0.5, 0.5);
 }
 
-
-// Função de suavização conservativa
 function suavizacaoConservativa(matriz) {
     if (!matriz) return null;
 
     const altura = matriz.length;
     const largura = matriz[0].length;
-
     const resultado = [];
 
     for (let y = 0; y < altura; y++) {
         resultado[y] = [];
-
         for (let x = 0; x < largura; x++) {
-            resultado[y][x] = [...matriz[y][x]];
+            resultado[y][x] = new Uint8ClampedArray(matriz[y][x]);
         }
     }
 
     for (let y = 1; y < altura - 1; y++) {
         for (let x = 1; x < largura - 1; x++) {
             for (let canal = 0; canal < 3; canal++) {
-                let minimo = 255;
-                let maximo = 0;
+                let minimo = 255, maximo = 0;
                 for (let j = -1; j <= 1; j++) {
                     for (let i = -1; i <= 1; i++) {
-                        if (i === 0 && j === 0)
-                            continue;
+                        if (i === 0 && j === 0) continue;
                         const valor = matriz[y + j][x + i][canal];
                         if (valor < minimo) minimo = valor;
                         if (valor > maximo) maximo = valor;
                     }
                 }
                 const pixel = matriz[y][x][canal];
-
-                if (pixel < minimo) {
-                    resultado[y][x][canal] = minimo;
-                }
-                else if (pixel > maximo) {
-                    resultado[y][x][canal] = maximo;
-                }
-                else {
-                    resultado[y][x][canal] = pixel;
-                }
+                if (pixel < minimo) resultado[y][x][canal] = minimo;
+                else if (pixel > maximo) resultado[y][x][canal] = maximo;
             }
-
             resultado[y][x][3] = matriz[y][x][3];
         }
     }
@@ -780,8 +711,6 @@ function suavizacaoConservativa(matriz) {
     return resultado;
 }
 
-
-// Função para salvar um canvas como arquivo PNG
 function salvarCanvasComoImagem(canvasId, fileName) {
     const canvas = document.getElementById(canvasId);
     const dataURL = canvas.toDataURL('image/png');
@@ -794,7 +723,6 @@ function salvarCanvasComoImagem(canvasId, fileName) {
     document.body.removeChild(link);
 }
 
-// Função para desenhar uma matriz de pixels em um canvas
 function desenharMatrizNoCanvas(matriz, canvasId) {
     if (!matriz) return;
 
@@ -810,10 +738,10 @@ function desenharMatrizNoCanvas(matriz, canvasId) {
     for (let y = 0; y < altura; y++) {
         for (let x = 0; x < largura; x++) {
             const index = (y * largura + x) * 4;
-            imageData.data[index] = matriz[y][x][0];     // R
-            imageData.data[index + 1] = matriz[y][x][1]; // G
-            imageData.data[index + 2] = matriz[y][x][2]; // B
-            imageData.data[index + 3] = matriz[y][x][3]; // A
+            imageData.data[index]     = matriz[y][x][0];
+            imageData.data[index + 1] = matriz[y][x][1];
+            imageData.data[index + 2] = matriz[y][x][2];
+            imageData.data[index + 3] = matriz[y][x][3];
         }
     }
 

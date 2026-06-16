@@ -8,21 +8,20 @@
 </head>
 <body>
     <div id="leftSide">
+
         <div class="panel">
             <div class="panel-header">Carregamento</div>
             <div class="panel-content">
-                <div>
-                    <input type="file" id="fileInput1" accept="image/*" multiple>
-                    <label for="fileInput1">Selecione a primeira imagem</label>
+                <div class="file-field">
+                    <label for="fileInput1">Imagem 1</label>
+                    <input type="file" id="fileInput1" accept="image/*">
                 </div>
-
-                <div>
-                    <input type="file" id="fileInput2" accept="image/*" multiple>
-                    <label for="fileInput2">Selecione a segunda imagem</label>
+                <div class="file-field">
+                    <label for="fileInput2">Imagem 2</label>
+                    <input type="file" id="fileInput2" accept="image/*">
                 </div>
-
-                <div class="control-row">
-                    <button id="loadBtn">Carregar Imagens</button>
+                <div class="load-actions">
+                    <button id="loadBtn">Carregar</button>
                     <button id="saveResultBtn">Salvar Resultado</button>
                 </div>
             </div>
@@ -31,29 +30,37 @@
         <div class="panel">
             <div class="panel-header">Operações Aritméticas</div>
             <div class="panel-content">
-                <div>
+                <div class="btn-row">
                     <button id="sumImagesBtn">Somar Imagens</button>
                     <button id="subtractImagesBtn">Subtrair Imagens</button>
                 </div>
-                <div class="control-row">
-                    <div class="control-group">
-                        <button id="brightenBtn">Aumentar Brilho</button>
-                        <input type="number" id="brightnessValue" placeholder="Valor (0-255)" min="0" max="255" value="50">
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Aumentar Brilho</label>
+                        <input type="number" id="brightnessValue" placeholder="0 – 255" min="0" max="255" value="50">
                     </div>
-                    <div class="control-group">
-                        <button id="darkenBtn">Diminuir Brilho</button>
-                        <input type="number" id="darknessValue" placeholder="Valor (0-255)" min="0" max="255" value="50">
-                    </div>
+                    <button id="brightenBtn">Aplicar</button>
                 </div>
-                <div class="control-row">
-                    <div class="control-group">
-                        <button id="contrastBtn">Multiplicar Contraste</button>
-                        <input type="number" id="contrastValue" placeholder="Fator (0.1-5.0)" min="0.1" max="5.0" step="0.1" value="1.5">
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Diminuir Brilho</label>
+                        <input type="number" id="darknessValue" placeholder="0 – 255" min="0" max="255" value="50">
                     </div>
-                    <div class="control-group">
-                        <button id="divideContrastBtn">Dividir Contraste</button>
-                        <input type="number" id="divideContrastValue" placeholder="Divisor (0.1-5.0)" min="0.1" max="5.0" step="0.1" value="1.5">
+                    <button id="darkenBtn">Aplicar</button>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Multiplicar Contraste</label>
+                        <input type="number" id="contrastValue" placeholder="0.1 – 5.0" min="0.1" max="5.0" step="0.1" value="1.5">
                     </div>
+                    <button id="contrastBtn">Aplicar</button>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Dividir Contraste</label>
+                        <input type="number" id="divideContrastValue" placeholder="0.1 – 5.0" min="0.1" max="5.0" step="0.1" value="1.5">
+                    </div>
+                    <button id="divideContrastBtn">Aplicar</button>
                 </div>
             </div>
         </div>
@@ -61,16 +68,20 @@
         <div class="panel">
             <div class="panel-header">Combinações e Diferenças</div>
             <div class="panel-content">
-                <div>
-                    <button id="differenceBtn">Diferença de Imagens</button>
-                    <button id="blendBtn">Combinação Linear</button>
+                <div class="btn-row">
+                    <button id="differenceBtn">Diferença</button>
+                    <button id="averageBtn">Média</button>
                 </div>
-                <div class="control-row">
-                    <input type="number" id="blendAlphaValue" placeholder="Alpha (0-1)" min="0" max="1" step="0.1" value="0.5">
-                    <input type="number" id="blendBetaValue" placeholder="Beta (0-1)" min="0" max="1" step="0.1" value="0.5">
-                </div>
-                <div>
-                    <button id="averageBtn">Média de Imagens</button>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Alpha</label>
+                        <input type="number" id="blendAlphaValue" placeholder="0 – 1" min="0" max="1" step="0.1" value="0.5">
+                    </div>
+                    <div class="input-group">
+                        <label>Beta</label>
+                        <input type="number" id="blendBetaValue" placeholder="0 – 1" min="0" max="1" step="0.1" value="0.5">
+                    </div>
+                    <button id="blendBtn">Blend</button>
                 </div>
             </div>
         </div>
@@ -78,14 +89,14 @@
         <div class="panel">
             <div class="panel-header">Transformações Básicas</div>
             <div class="panel-content">
-                <div>
-                    <button id="grayBtn">Converter para Cinza</button>
+                <div class="btn-row">
+                    <button id="grayBtn">Cinza</button>
                     <button id="negativeBtn">Negativo</button>
-                    <button id="equalizeBtn">Equalizar Histograma</button>
+                    <button id="equalizeBtn">Equalizar</button>
                 </div>
-                <div>
-                    <button id="flipHorizontalBtn">Inverter Horizontal</button>
-                    <button id="flipVerticalBtn">Inverter Vertical</button>
+                <div class="btn-row">
+                    <button id="flipHorizontalBtn">Flip H</button>
+                    <button id="flipVerticalBtn">Flip V</button>
                 </div>
             </div>
         </div>
@@ -93,16 +104,18 @@
         <div class="panel">
             <div class="panel-header">Operações Binárias</div>
             <div class="panel-content">
-                <div>
-                    <label for="thresholdValue">Limiar:</label>
-                    <input type="number" id="thresholdValue" placeholder="0-255" min="0" max="255" value="128">
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Limiar</label>
+                        <input type="number" id="thresholdValue" placeholder="0 – 255" min="0" max="255" value="128">
+                    </div>
                     <button id="thresholdBtn">Limiarizar</button>
                 </div>
-                <div>
-                    <button id="andBtn">AND Binário</button>
-                    <button id="orBtn">OR Binário</button>
-                    <button id="xorBtn">XOR Binário</button>
-                    <button id="notBtn">NOT Binário</button>
+                <div class="btn-row">
+                    <button id="andBtn">AND</button>
+                    <button id="orBtn">OR</button>
+                    <button id="xorBtn">XOR</button>
+                    <button id="notBtn">NOT</button>
                 </div>
             </div>
         </div>
@@ -110,23 +123,22 @@
         <div class="panel">
             <div class="panel-header">Filtros Passa-Baixa</div>
             <div class="panel-content">
-                <div>
-                    <button id="maxFilterBtn">Filtro MAX</button>
-                    <button id="minFilterBtn">Filtro MIN</button>
+                <div class="btn-row">
+                    <button id="maxFilterBtn">MAX</button>
+                    <button id="minFilterBtn">MIN</button>
+                    <button id="meanFilterBtn">MEAN</button>
                 </div>
-                <div>
-                    <button id="meanFilterBtn">Filtro MEAN</button>
-                    <button id="medianFilterBtn">Filtro MEDIANA</button>
+                <div class="btn-row">
+                    <button id="medianFilterBtn">MEDIANA</button>
+                    <button id="gaussianFilterBtn">GAUSSIANO</button>
+                    <button id="smoothBtn">SUAV.</button>
                 </div>
-                <div>
-                    <button id="orderFilterBtn">Filtro ORDEM</button>
-                    <input type="number" id="orderPositionValue" placeholder="Posição (1-9)" min="1" max="9" value="5">
-                </div>
-                <div>
-                    <button id="gaussianFilterBtn">Filtro GAUSSIANO</button>
-                </div>
-                <div>
-                    <button id="smoothBtn">Suavização Conservativa</button>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Filtro Ordem (posição 1–9)</label>
+                        <input type="number" id="orderPositionValue" placeholder="1 – 9" min="1" max="9" value="5">
+                    </div>
+                    <button id="orderFilterBtn">Aplicar</button>
                 </div>
             </div>
         </div>
@@ -134,10 +146,10 @@
         <div class="panel">
             <div class="panel-header">Filtros Passa-Alta</div>
             <div class="panel-content">
-                <div>
-                    <button id="prewittBtn">Borda Prewitt</button>
-                    <button id="sobelBtn">Borda Sobel</button>
-                    <button id="laplacianBtn">Borda Laplaciano</button>
+                <div class="btn-row">
+                    <button id="prewittBtn">Prewitt</button>
+                    <button id="sobelBtn">Sobel</button>
+                    <button id="laplacianBtn">Laplaciano</button>
                 </div>
             </div>
         </div>
@@ -145,36 +157,39 @@
         <div class="panel">
             <div class="panel-header">Operações Morfológicas</div>
             <div class="panel-content">
-                <div>
+                <div class="btn-row">
                     <button id="dilateBtn">Dilatação</button>
                     <button id="erodeBtn">Erosão</button>
                 </div>
-                <div>
+                <div class="btn-row">
                     <button id="openBtn">Abertura</button>
                     <button id="closeBtn">Fechamento</button>
                     <button id="contourBtn">Contorno</button>
                 </div>
             </div>
         </div>
+
     </div>
+
     <div id="rightSide">
         <div id="imagesContainer">
             <div id="image1Container">
                 <h3>Imagem 1</h3>
-                <img id="image1" alt="Imagem 1" style="max-width: 200px; max-height: 200px;">
+                <img id="image1" alt="Imagem 1">
             </div>
             <div id="image2Container">
                 <h3>Imagem 2</h3>
-                <img id="image2" alt="Imagem 2" style="max-width: 200px; max-height: 200px;">
+                <img id="image2" alt="Imagem 2">
             </div>
         </div>
         <div id="resultContainer">
-            <h3>Imagem Resultante</h3>
-            <canvas id="resultCanvas" style="max-width: 200px; max-height: 200px; border: 1px solid #ccc;"></canvas>
+            <h3>Resultado</h3>
+            <canvas id="resultCanvas"></canvas>
         </div>
-        <div id="output"></div>
+        <div id="output">Carregue duas imagens para começar.</div>
     </div>
+
     <script src="carregarImg.js"></script>
     <script src="funcoes.js"></script>
 </body>
-</html> 
+</html>
